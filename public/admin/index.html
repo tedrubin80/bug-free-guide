@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Linktree</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 24px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .header-actions a, .header-actions button {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .header-actions a:hover, .header-actions button:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      background: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      color: #666;
+    }
+
+    .tab.active {
+      background: #667eea;
+      color: white;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .card h2 {
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 18px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #e1e1e1;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #95a5a6;
+      color: white;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .link-list {
+      list-style: none;
+    }
+
+    .link-item {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      cursor: grab;
+      transition: all 0.2s;
+    }
+
+    .link-item:hover {
+      background: #f0f0f0;
+    }
+
+    .link-item.dragging {
+      opacity: 0.5;
+      cursor: grabbing;
+    }
+
+    .link-item.drag-over {
+      border: 2px dashed #667eea;
+    }
+
+    .drag-handle {
+      margin-right: 15px;
+      color: #999;
+      cursor: grab;
+    }
+
+    .link-info {
+      flex: 1;
+    }
+
+    .link-title {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .link-url {
+      font-size: 12px;
+      color: #666;
+      word-break: break-all;
+    }
+
+    .link-status {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      margin-right: 10px;
+    }
+
+    .link-status.active {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .link-status.inactive {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .link-actions {
+      display: flex;
+      gap: 5px;
+    }
+
+    .link-actions button {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .color-input-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .color-input-group input[type="color"] {
+      width: 50px;
+      height: 36px;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .color-input-group input[type="text"] {
+      flex: 1;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .checkbox-group input {
+      width: auto;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+    }
+
+    .stat-card {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 24px;
+      font-weight: 700;
+      color: #667eea;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Admin Dashboard</h1>
+    <div class="header-actions">
+      <a href="/" target="_blank">View Site</a>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('links')">Links</button>
+      <button class="tab" onclick="switchTab('profile')">Profile</button>
+      <button class="tab" onclick="switchTab('analytics')">Analytics</button>
+      <button class="tab" onclick="switchTab('settings')">Settings</button>
+    </div>
+
+    <!-- Links Tab -->
+    <div id="links-tab" class="tab-content active">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h2 style="margin: 0;">Manage Links</h2>
+          <button class="btn btn-primary" onclick="openAddLinkModal()">Add Link</button>
+        </div>
+        <div id="message" class="message"></div>
+        <p style="font-size: 12px; color: #666; margin-bottom: 15px;">Drag and drop to reorder links</p>
+        <ul class="link-list" id="linkList"></ul>
+      </div>
+    </div>
+
+    <!-- Profile Tab -->
+    <div id="profile-tab" class="tab-content">
+      <div class="card">
+        <h2>Profile Settings</h2>
+        <div id="profileMessage" class="message"></div>
+        <form id="profileForm">
+          <div class="form-group">
+            <label for="profileName">Display Name</label>
+            <input type="text" id="profileName" required>
+          </div>
+          <div class="form-group">
+            <label for="profileBio">Bio</label>
+            <textarea id="profileBio" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="profileAvatar">Avatar URL</label>
+            <input type="url" id="profileAvatar" placeholder="https://example.com/avatar.jpg">
+          </div>
+          <div class="form-group">
+            <label>Background Color</label>
+            <div class="color-input-group">
+              <input type="color" id="profileBgColor" value="#667eea">
+              <input type="text" id="profileBgColorText" value="#667eea">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Text Color</label>
+            <div class="color-input-group">
+              <input type="color" id="profileTextColor" value="#ffffff">
+              <input type="text" id="profileTextColorText" value="#ffffff">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Save Profile</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Analytics Tab -->
+    <div id="analytics-tab" class="tab-content">
+      <div class="card">
+        <h2>Analytics</h2>
+        <div class="stats" id="analyticsStats"></div>
+      </div>
+      <div class="card">
+        <h2>Link Performance</h2>
+        <ul class="link-list" id="analyticsLinks"></ul>
+      </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div id="settings-tab" class="tab-content">
+      <div class="card">
+        <h2>Change Password</h2>
+        <div id="passwordMessage" class="message"></div>
+        <form id="passwordForm">
+          <div class="form-group">
+            <label for="currentPassword">Current Password</label>
+            <input type="password" id="currentPassword" required>
+          </div>
+          <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input type="password" id="newPassword" required minlength="6">
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword">Confirm New Password</label>
+            <input type="password" id="confirmPassword" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Update Password</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Link Modal -->
+  <div class="modal" id="linkModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Add Link</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="linkForm">
+        <input type="hidden" id="linkId">
+        <div class="form-group">
+          <label for="linkTitle">Title</label>
+          <input type="text" id="linkTitle" required>
+        </div>
+        <div class="form-group">
+          <label for="linkUrl">URL</label>
+          <input type="url" id="linkUrl" required placeholder="https://example.com">
+        </div>
+        <div class="form-group">
+          <label for="linkIcon">Icon (optional)</label>
+          <input type="text" id="linkIcon" placeholder="e.g., github, twitter, linkedin">
+        </div>
+        <div class="form-group">
+          <label>Button Background Color</label>
+          <div class="color-input-group">
+            <input type="color" id="linkBgColor" value="#ffffff">
+            <input type="text" id="linkBgColorText" value="#ffffff">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Button Text Color</label>
+          <div class="color-input-group">
+            <input type="color" id="linkTextColor" value="#333333">
+            <input type="text" id="linkTextColorText" value="#333333">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="checkbox-group">
+            <input type="checkbox" id="linkActive" checked>
+            <label for="linkActive" style="margin: 0;">Active</label>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let links = [];
+    let draggedItem = null;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      loadLinks();
+      loadProfile();
+      setupColorInputs();
+    });
+
+    // Check authentication
+    async function checkAuth() {
+      const response = await fetch('/admin/api/auth');
+      const data = await response.json();
+      if (!data.authenticated) {
+        window.location.href = '/admin/login';
+      }
+    }
+
+    // Logout
+    async function logout() {
+      await fetch('/admin/api/logout', { method: 'POST' });
+      window.location.href = '/admin/login';
+    }
+
+    // Tab switching
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+      document.getElementById(`${tabName}-tab`).classList.add('active');
+
+      if (tabName === 'analytics') {
+        loadAnalytics();
+      }
+    }
+
+    // Load links
+    async function loadLinks() {
+      const response = await fetch('/admin/api/links');
+      links = await response.json();
+      renderLinks();
+    }
+
+    // Render links
+    function renderLinks() {
+      const list = document.getElementById('linkList');
+      list.innerHTML = links.map(link => `
+        <li class="link-item" draggable="true" data-id="${link.id}">
+          <span class="drag-handle">&#9776;</span>
+          <div class="link-info">
+            <div class="link-title">${escapeHtml(link.title)}</div>
+            <div class="link-url">${escapeHtml(link.url)}</div>
+          </div>
+          <span class="link-status ${link.is_active ? 'active' : 'inactive'}">
+            ${link.is_active ? 'Active' : 'Inactive'}
+          </span>
+          <div class="link-actions">
+            <button class="btn btn-secondary" onclick="editLink(${link.id})">Edit</button>
+            <button class="btn btn-danger" onclick="deleteLink(${link.id})">Delete</button>
+          </div>
+        </li>
+      `).join('');
+
+      // Setup drag and drop
+      setupDragAndDrop();
+    }
+
+    // Drag and drop
+    function setupDragAndDrop() {
+      const items = document.querySelectorAll('.link-item');
+
+      items.forEach(item => {
+        item.addEventListener('dragstart', (e) => {
+          draggedItem = item;
+          item.classList.add('dragging');
+        });
+
+        item.addEventListener('dragend', () => {
+          item.classList.remove('dragging');
+          document.querySelectorAll('.link-item').forEach(i => i.classList.remove('drag-over'));
+          saveOrder();
+        });
+
+        item.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          if (item !== draggedItem) {
+            item.classList.add('drag-over');
+          }
+        });
+
+        item.addEventListener('dragleave', () => {
+          item.classList.remove('drag-over');
+        });
+
+        item.addEventListener('drop', (e) => {
+          e.preventDefault();
+          if (item !== draggedItem) {
+            const list = document.getElementById('linkList');
+            const items = [...list.querySelectorAll('.link-item')];
+            const draggedIndex = items.indexOf(draggedItem);
+            const dropIndex = items.indexOf(item);
+
+            if (draggedIndex < dropIndex) {
+              item.after(draggedItem);
+            } else {
+              item.before(draggedItem);
+            }
+          }
+        });
+      });
+    }
+
+    // Save order
+    async function saveOrder() {
+      const items = document.querySelectorAll('.link-item');
+      const orders = [...items].map((item, index) => ({
+        id: parseInt(item.dataset.id),
+        sort_order: index
+      }));
+
+      await fetch('/admin/api/links/reorder', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orders })
+      });
+
+      showMessage('Order saved', 'success');
+    }
+
+    // Open add link modal
+    function openAddLinkModal() {
+      document.getElementById('modalTitle').textContent = 'Add Link';
+      document.getElementById('linkForm').reset();
+      document.getElementById('linkId').value = '';
+      document.getElementById('linkBgColor').value = '#ffffff';
+      document.getElementById('linkBgColorText').value = '#ffffff';
+      document.getElementById('linkTextColor').value = '#333333';
+      document.getElementById('linkTextColorText').value = '#333333';
+      document.getElementById('linkActive').checked = true;
+      document.getElementById('linkModal').classList.add('active');
+    }
+
+    // Edit link
+    function editLink(id) {
+      const link = links.find(l => l.id === id);
+      if (!link) return;
+
+      document.getElementById('modalTitle').textContent = 'Edit Link';
+      document.getElementById('linkId').value = link.id;
+      document.getElementById('linkTitle').value = link.title;
+      document.getElementById('linkUrl').value = link.url;
+      document.getElementById('linkIcon').value = link.icon || '';
+      document.getElementById('linkBgColor').value = link.background_color;
+      document.getElementById('linkBgColorText').value = link.background_color;
+      document.getElementById('linkTextColor').value = link.text_color;
+      document.getElementById('linkTextColorText').value = link.text_color;
+      document.getElementById('linkActive').checked = link.is_active;
+      document.getElementById('linkModal').classList.add('active');
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById('linkModal').classList.remove('active');
+    }
+
+    // Save link
+    document.getElementById('linkForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const id = document.getElementById('linkId').value;
+      const data = {
+        title: document.getElementById('linkTitle').value,
+        url: document.getElementById('linkUrl').value,
+        icon: document.getElementById('linkIcon').value,
+        background_color: document.getElementById('linkBgColor').value,
+        text_color: document.getElementById('linkTextColor').value,
+        is_active: document.getElementById('linkActive').checked
+      };
+
+      const url = id ? `/admin/api/links/${id}` : '/admin/api/links';
+      const method = id ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        closeModal();
+        loadLinks();
+        showMessage(id ? 'Link updated' : 'Link added', 'success');
+      } else {
+        alert('Error saving link');
+      }
+    });
+
+    // Delete link
+    async function deleteLink(id) {
+      if (!confirm('Are you sure you want to delete this link?')) return;
+
+      const response = await fetch(`/admin/api/links/${id}`, { method: 'DELETE' });
+      if (response.ok) {
+        loadLinks();
+        showMessage('Link deleted', 'success');
+      }
+    }
+
+    // Load profile
+    async function loadProfile() {
+      const response = await fetch('/admin/api/profile');
+      const profile = await response.json();
+
+      document.getElementById('profileName').value = profile.name || '';
+      document.getElementById('profileBio').value = profile.bio || '';
+      document.getElementById('profileAvatar').value = profile.avatar_url || '';
+      document.getElementById('profileBgColor').value = profile.background_color || '#667eea';
+      document.getElementById('profileBgColorText').value = profile.background_color || '#667eea';
+      document.getElementById('profileTextColor').value = profile.text_color || '#ffffff';
+      document.getElementById('profileTextColorText').value = profile.text_color || '#ffffff';
+    }
+
+    // Save profile
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const data = {
+        name: document.getElementById('profileName').value,
+        bio: document.getElementById('profileBio').value,
+        avatar_url: document.getElementById('profileAvatar').value,
+        background_color: document.getElementById('profileBgColor').value,
+        text_color: document.getElementById('profileTextColor').value
+      };
+
+      const response = await fetch('/admin/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        showMessage('Profile saved', 'success', 'profileMessage');
+      } else {
+        showMessage('Error saving profile', 'error', 'profileMessage');
+      }
+    });
+
+    // Load analytics
+    async function loadAnalytics() {
+      const response = await fetch('/admin/api/analytics');
+      const data = await response.json();
+
+      document.getElementById('analyticsStats').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-number">${data.totalClicks}</div>
+          <div class="stat-label">Total Clicks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">${data.links.length}</div>
+          <div class="stat-label">Total Links</div>
+        </div>
+      `;
+
+      document.getElementById('analyticsLinks').innerHTML = data.links.map(link => `
+        <li class="link-item" style="cursor: default;">
+          <div class="link-info">
+            <div class="link-title">${escapeHtml(link.title)}</div>
+          </div>
+          <div style="font-weight: 600; color: #667eea;">${link.clicks} clicks</div>
+        </li>
+      `).join('');
+    }
+
+    // Change password
+    document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const currentPassword = document.getElementById('currentPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (newPassword !== confirmPassword) {
+        showMessage('Passwords do not match', 'error', 'passwordMessage');
+        return;
+      }
+
+      const response = await fetch('/admin/api/password', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword, newPassword })
+      });
+
+      if (response.ok) {
+        document.getElementById('passwordForm').reset();
+        showMessage('Password updated', 'success', 'passwordMessage');
+      } else {
+        const data = await response.json();
+        showMessage(data.error || 'Error updating password', 'error', 'passwordMessage');
+      }
+    });
+
+    // Setup color inputs
+    function setupColorInputs() {
+      const colorPairs = [
+        ['linkBgColor', 'linkBgColorText'],
+        ['linkTextColor', 'linkTextColorText'],
+        ['profileBgColor', 'profileBgColorText'],
+        ['profileTextColor', 'profileTextColorText']
+      ];
+
+      colorPairs.forEach(([colorId, textId]) => {
+        const colorInput = document.getElementById(colorId);
+        const textInput = document.getElementById(textId);
+
+        if (colorInput && textInput) {
+          colorInput.addEventListener('input', () => {
+            textInput.value = colorInput.value;
+          });
+
+          textInput.addEventListener('input', () => {
+            if (/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) {
+              colorInput.value = textInput.value;
+            }
+          });
+        }
+      });
+    }
+
+    // Show message
+    function showMessage(text, type, elementId = 'message') {
+      const el = document.getElementById(elementId);
+      el.textContent = text;
+      el.className = `message ${type}`;
+      el.style.display = 'block';
+      setTimeout(() => {
+        el.style.display = 'none';
+      }, 3000);
+    }
+
+    // Escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>
